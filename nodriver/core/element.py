@@ -945,7 +945,7 @@ class Element:
                 _d.style = `{0:s}`;
                 _d.id = `{1:s}`;
                 document.body.insertAdjacentElement('afterBegin', _d);
-                                
+
                 setTimeout( () => document.getElementById('{1:s}').remove(), {2:d});
             }}
             """.format(
@@ -1037,8 +1037,8 @@ class Element:
         await self.apply(
             """
             function extractVid(vid) {{
-                    
-                      var duration = {duration:.1f}; 
+
+                      var duration = {duration:.1f};
                       var stream = vid.captureStream();
                       var mr = new MediaRecorder(stream, {{audio:true, video:true}})
                       mr.ondataavailable  = function(e) {{
@@ -1057,19 +1057,19 @@ class Element:
 
                           document.body.removeChild(link)
                        }}
-                       
+
                        mr.start()
                        vid.addEventListener('ended' , (e) => mr.stop())
                        vid.addEventListener('pause' , (e) => mr.stop())
                        vid.addEventListener('abort', (e) => mr.stop())
-                       
-                       
-                       if ( duration ) {{ 
+
+
+                       if ( duration ) {{
                             setTimeout(() => {{ vid.pause(); vid.play() }}, duration);
                        }}
                        vid['_recording'] = true
                   ;}}
-                
+
             """.format(
                 filename=f'"{filename}"' if filename else 'document.title + ".mp4"',
                 duration=int(duration * 1000) if duration else 0,
