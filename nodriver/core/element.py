@@ -751,13 +751,16 @@ class Element:
                     nearby.append(Element.qwertyKeyboardArray[new_i][new_j])
         return nearby
 
-    async def send_keys_humanistic(self, text: str, accuracy=0.9, correction_chance=0.6, typing_delay=(0.04, 0.11)):
+    async def send_keys_humanistic(self, text: str, accuracy=0.9, correction_chance=0.9, typing_delay=(0.04, 0.11)):
         """
         Send text to an input field with humanistic typing behavior.
 
+        🚨 If you need your text sent perfectly increase your
+        `correction_chance` to `1.0`.
+
         :param text: text to send
         :param accuracy: typing accuracy (default 0.9)
-        :param correction_chance: chance to correct a typo (default 0.6)
+        :param correction_chance: chance to correct a typo (default 0.9)
         :param typing_delay: tuple of (min, max) delay between keystrokes
         """
         await self.apply("(elem) => elem.focus()")
