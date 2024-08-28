@@ -3,6 +3,7 @@ import asyncio
 import json
 import logging
 import pathlib
+import random
 import typing
 import warnings
 from typing import List, Union, Optional, Tuple
@@ -1017,6 +1018,9 @@ class Tab(Connection):
 
         :param amount: number in percentage. 25 is a quarter of page, 50 half, and 1000 is 10x the page
         :type amount: int
+        :type prevent_fling: bool
+        :type speed: int
+        :type overscroll_randomize: bool
         :return:
         :rtype:
         """
@@ -1043,6 +1047,103 @@ class Tab(Connection):
 
         :param amount: number in percentage. 25 is a quarter of page, 50 half, and 1000 is 10x the page
         :type amount: int
+        :type prevent_fling: bool
+        :type speed: int
+        :type overscroll_randomize: bool
+        :return:
+        :rtype:
+        """
+        window_id: cdp.browser.WindowID
+        bounds: cdp.browser.Bounds
+        (window_id, bounds) = await self.get_window()
+
+        await self.send(
+            cdp.input_.synthesize_scroll_gesture(
+                x=0,
+                y=0,
+                y_distance=(bounds.height * (amount / 100)),
+                y_overscroll=0,
+                x_overscroll=0,
+                prevent_fling=True,
+                repeat_delay_ms=0,
+                speed=7777,
+            )
+        )
+
+    async def new_scroll(self, amount=25, scroll_up=False):
+        """
+        scrolls up or down for a percentage of the entire page
+        :param amount: number in percentage. 25 is a quarter of site
+        :param scroll_up: if True, scrolls up, otherwise down
+        :type amount: int
+        :type scroll_up: bool
+        :return:
+        :rtype:
+        """
+        window_id: cdp.browser.WindowID
+        bounds: cdp.browser.Bounds
+        csscontent: cdb.dom.Rect
+        # lvp, vvp, cs, csslvp, cssvvp, csscontent = await self.send(cdp.page.get_layout_metrics())
+        lvp, vvp, cs, csslvp, cssvvp, csscontent = await self.send(cdp.page.dom.page.get_layout_metrics())
+        # import pdb; pdb.set_trace()
+        (window_id, bounds) = await self.get_window()
+        if scroll_up:
+            scroll_distance = (bounds.height * (55 / 100))
+        else:
+            scroll_distance = -(bounds.height * (55 / 100))
+
+        # If scroll_distance is longer than the viewport, we need to scroll multiple times
+        page_height = (csscontent.height * (amount / 100))
+        # if scroll_distance > page_height:
+        # import pdb; pdb.set_trace()
+        scrolls = int(page_height / abs(scroll_distance))
+        await self.send(
+            cdp.input_.synthesize_scroll_gesture(
+                x=0,
+                y=0,
+                y_distance=scroll_distance,
+                y_overscroll=random.randrange(0, 5),
+                x_overscroll=random.randrange(0, 6),
+                repeat_count=scrolls,
+                prevent_fling=False,
+                repeat_delay_ms=random.randrange(700,1400),
+                speed=random.randrange(700, 850),
+            )
+        )
+
+
+    async def ajt_scroll_down(self, amount=25):
+        """
+        scrolls down maybe
+
+        :param amount: number in percentage. 25 is a quarter of page, 50 half, and 1000 is 10x the page
+        :type amount: int
+        :return:
+        :rtype:
+        """
+        window_id: cdp.browser.WindowID
+        bounds: cdp.browser.Bounds
+        (window_id, bounds) = await self.get_window()
+
+        await self.send(
+            cdp.input_.synthesize_scroll_gesture(
+                x=0,
+                y=0,
+                y_distance=-(bounds.height * (amount / 100)),
+                y_overscroll=0,
+                x_overscroll=0,
+                prevent_fling=False,
+                repeat_delay_ms=random.randrange(30, 55),
+                speed=random.randrange(700, 850),
+            )
+        )
+
+    async def ajt_scroll_up(self, amount=25):
+        """
+        scrolls up maybe
+
+        :param amount: number in percentage. 25 is a quarter of page, 50 half, and 1000 is 10x the page
+        :type amount: int
 
         :return:
         :rtype:
@@ -1057,9 +1158,9 @@ class Tab(Connection):
                 y=0,
                 y_distance=(bounds.height * (amount / 100)),
                 x_overscroll=0,
-                prevent_fling=True,
-                repeat_delay_ms=0,
-                speed=7777,
+                prevent_fling=False,
+                repeat_delay_ms=random.randrange(30, 55),
+                speed=random.randrange(700, 850)
             )
         )
 

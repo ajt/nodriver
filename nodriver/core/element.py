@@ -508,6 +508,13 @@ class Element:
                 % self
             )
 
+    async def human_scroll_to(self):  # pragma: no cover self):
+        """scrolls to the element"""
+        pos = await self.get_position()
+        if not pos:
+            return
+        await self.tab.evaluate()
+
     async def mouse_click(
         self,
         button: str = "left",
